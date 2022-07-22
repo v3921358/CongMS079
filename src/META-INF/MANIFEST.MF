@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.9.4
+Created-By: 1.8.0_101-b13 (Oracle Corporation)
+Class-Path: lib/AbsoluteLayout.jar lib/Commons.jar lib/Reflections.jar
+  lib/US_export_policy.jar lib/beansbinding-1.2.1.jar lib/beautyeye_ln
+ f.jar lib/commons-compress-1.19.jar lib/druid-1.0.25.jar lib/druid-1.
+ 0.26.jar lib/druid-1.0.27.jar lib/druid-1.1.9.jar lib/ini4j-0.5.4.jar
+  lib/jna-3.3.0.jar lib/kotlin-stdlib-1.1.0.jar lib/loadkit-v1.0.1.jar
+  lib/local_policy.jar lib/mina-core-2.0.9.jar lib/mysql-connector-jav
+ a-bin.jar lib/netty-all-4.1.0.Final.jar lib/netty-all-4.1.14.Final.ja
+ r lib/netty-all-4.1.39.Final.jar lib/netty-all-4.1.6.Final.jar lib/or
+ g.dtools.javaini-v1.1.1.jar lib/pkgnx-2.0.4-jar-with-dependencies.jar
+  lib/quartz-2.2.3.jar lib/quartz-jobs-2.2.3.jar lib/slf4j-api-1.7.7.j
+ ar lib/slf4j-simple-1.7.7.jar lib/substance-4.3.jar lib/syntheticaWhi
+ teVision.jar lib/weblaf-1.29.jar lib/weblaf-complete-1.29.jar lib/web
+ laf-core-1.29.jar lib/weblaf-ui-1.29.jar
+X-COMMENT: Main-Class will be added automatically by build
+Main-Class: gui.FengYeDuan
+
