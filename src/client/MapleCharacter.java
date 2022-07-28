@@ -10908,7 +10908,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             ps.setInt(1, this.getClient().getAccID());
             final ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                final PreparedStatement pss = con1.prepareStatement("update lefttime set (charid=?,x=?,y=?,chairid=?,lefttime=?) where accid = ?");
+                final PreparedStatement pss = con1.prepareStatement("update lefttime set charid=?,x=?,y=?,chairid=?,lefttime=? where accid = ?");
                 pss.setInt(1, this.id);
                 pss.setInt(2, x);
                 pss.setInt(3, y);
