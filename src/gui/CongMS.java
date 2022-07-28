@@ -7257,7 +7257,7 @@ public class CongMS extends JFrame
         final boolean result1 = this.角色ID.getText().matches("[0-9]+");
         if (result1) {
             try {
-                ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET (guildid = ?,guildrank = ?,allianceRank = ?)WHERE id = ?");
+                ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET guildid = ?,guildrank = ?,allianceRank = ? WHERE id = ?");
                 ps2 = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM characters WHERE id = ?");
                 ps2.setInt(1, Integer.parseInt(this.角色ID.getText()));
                 rs = ps2.executeQuery();
@@ -7357,7 +7357,7 @@ public class CongMS extends JFrame
                 return;
             }
             try {
-                ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET (hair = ?,face = ?)WHERE id = ?");
+                ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET hair = ?,face = ? WHERE id = ?");
                 ps2 = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM characters WHERE id = ?");
                 ps2.setInt(1, Integer.parseInt(this.角色ID.getText()));
                 rs = ps2.executeQuery();
@@ -7488,7 +7488,7 @@ public class CongMS extends JFrame
             return;
         }
         try {
-            ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET (name = ?,level = ?, str = ?, dex = ?, luk = ?,int = ?,  maxhp = ?, maxmp = ?, meso = ?, map = ?, gm = ?, hair = ?, face = ? )WHERE id = ?");
+            ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET `name` = ?,level = ?, str = ?, dex = ?, luk = ?,int = ?,  maxhp = ?, maxmp = ?, meso = ?, map = ?, gm = ?, hair = ?, face = ? WHERE id = ?");
             ps2 = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM characters WHERE id = ?");
             ps2.setInt(1, Integer.parseInt(this.角色ID.getText()));
             rs = ps2.executeQuery();

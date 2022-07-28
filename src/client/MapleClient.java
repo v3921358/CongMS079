@@ -1,60 +1,42 @@
 package client;
 
-import server.ServerProperties;
-import database.DatabaseConnection;
-import tools.MaplePacketCreator;
-import java.util.Collections;
-import java.util.ArrayList;
 import constants.ServerConstants.PlayerGMRank;
-import server.Timer.PingTimer;
-import tools.packet.LoginPacket;
+import database.DBConPool;
+import database.DatabaseConnection;
+import database.DatabaseException;
+import handling.cashshop.CashShopServer;
+import handling.channel.ChannelServer;
+import handling.world.MapleMessengerCharacter;
+import handling.world.MapleParty;
+import handling.world.MaplePartyCharacter;
+import handling.world.PartyOperation;
+import handling.world.World.*;
 import handling.world.family.MapleFamilyCharacter;
 import handling.world.guild.MapleGuildCharacter;
-import handling.world.MapleParty;
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
+import server.ServerProperties;
+import server.Timer.PingTimer;
 import server.maps.MapleMap;
-import handling.cashshop.CashShopServer;
-import handling.world.World.Find;
-import handling.world.World.Family;
-import handling.world.World.Guild;
-import handling.world.World.Buddy;
-import handling.world.World.Party;
-import handling.world.PartyOperation;
-import handling.world.World.Messenger;
-import handling.world.MapleMessengerCharacter;
-import handling.world.MaplePartyCharacter;
-import server.shops.IMaplePlayerShop;
-import handling.world.MapleMessenger;
 import server.quest.MapleQuest;
-import database.DatabaseException;
+import server.shops.IMaplePlayerShop;
+import tools.*;
+import tools.packet.LoginPacket;
+
+import javax.script.ScriptEngine;
 import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tools.HexTool;
-import java.security.MessageDigest;
-import tools.FilePrinter;
-import handling.channel.ChannelServer;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import tools.FileoutputUtil;
-import database.DBConPool;
-import java.util.Iterator;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.ScheduledFuture;
-import javax.script.ScriptEngine;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-import java.util.Calendar;
-import io.netty.channel.Channel;
-import tools.MapleAESOFB;
-import io.netty.util.AttributeKey;
 
 public class MapleClient
 {
@@ -1704,7 +1686,7 @@ public class MapleClient
             final int accid = rs.getInt(1);
             rs.close();
             ps.close();
-            ps = con.prepareStatement("UPDATE accounts SET TJJF = ? WHERE id = ?");
+            ps = con.prepareStatement("UPDATE accounts SET TJJF = ? WHERE id = ?"); // todo
             ps.setInt(1, x);
             ps.setInt(2, accid);
             ps.executeUpdate();
@@ -1720,7 +1702,7 @@ public class MapleClient
     
     public static final int getTJJF(final int accid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("SELECT TJJF FROM accounts WHERE id = ?");
+            final PreparedStatement ps = con.prepareStatement("SELECT TJJF FROM accounts WHERE id = ?"); // todo
             ps.setInt(1, accid);
             int ret;
             try (final ResultSet rs = ps.executeQuery()) {

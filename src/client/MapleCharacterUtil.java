@@ -265,7 +265,7 @@ public class MapleCharacterUtil
     public static int getNXCodeSize(final String code) {
         int item = -1;
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection();
-             final PreparedStatement ps = con.prepareStatement("SELECT `size` FROM nxcode WHERE code = ?")) {
+             final PreparedStatement ps = con.prepareStatement("SELECT `size` FROM nxcode WHERE code = ?")) { // todo
             ps.setString(1, code);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -283,7 +283,7 @@ public class MapleCharacterUtil
     public static int getNXCodeTime(final String code) {
         int item = -1;
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection();
-             final PreparedStatement ps = con.prepareStatement("SELECT `time` FROM nxcode WHERE code = ?")) {
+             final PreparedStatement ps = con.prepareStatement("SELECT `time` FROM nxcode WHERE code = ?")) { // todo
             ps.setString(1, code);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
