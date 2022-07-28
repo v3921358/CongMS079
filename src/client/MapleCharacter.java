@@ -1,139 +1,64 @@
 package client;
 
 import abc.离线人偶;
-import scripting.EventManager;
-import server.Timer.EventTimer;
-import server.maps.MapleMapEffect;
-import handling.world.World.Find;
+import client.anticheat.CheatTracker;
+import client.inventory.*;
+import client.inventory.MapleRing.RingComparator;
+import constants.GameConstants;
 import constants.MapConstants;
 import constants.ServerConfig;
+import constants.ServerConstants;
+import constants.ServerConstants.PlayerGMRank;
+import database.DBConPool;
+import database.DatabaseConnection;
+import database.DatabaseException;
+import fumo.FumoSkill;
+import gui.CongMS;
+import handling.cashshop.CashShopServer;
+import handling.channel.ChannelServer;
+import handling.login.LoginServer;
+import handling.world.*;
+import handling.world.World.*;
 import handling.world.family.MapleFamily;
 import handling.world.family.MapleFamilyBuff;
 import handling.world.family.MapleFamilyBuff.MapleFamilyBuffEntry;
-import scripting.NPCScriptManager;
-import constants.ServerConstants.PlayerGMRank;
-import handling.cashshop.CashShopServer;
-import handling.login.LoginServer;
-import handling.world.World;
-import handling.world.PlayerBuffStorage;
-import handling.world.MapleMessengerCharacter;
-import io.netty.channel.Channel;
-import tools.MapleAESOFB;
-import tools.MockIOSession;
-import client.inventory.MapleInventoryIdentifier;
-import server.maps.MapleFoothold;
-import java.util.Comparator;
-import client.inventory.MapleRing.RingComparator;
-import client.inventory.Item;
-import client.inventory.MapleRing;
-import tools.packet.MonsterCarnivalPacket;
-import tools.packet.PlayerShopPacket;
-import database.DatabaseConnection;
-import fumo.FumoSkill;
-import server.life.MobSkill;
-import handling.world.World.Guild;
-import handling.world.guild.MapleGuild;
-import server.maps.MapleMapObjectType;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import scripting.NPCConversationManager;
-import tools.packet.MobPacket;
-import client.inventory.ItemFlag;
-import handling.world.PartyOperation;
-import client.inventory.ModifyInventory;
-import constants.ServerConstants;
-import handling.world.World.Family;
-import gui.CongMS;
-import server.maps.FieldLimitType;
-import tools.packet.MTSCSPacket;
-import handling.world.MaplePartyCharacter;
-import java.util.Collections;
-import handling.world.PlayerBuffValueHolder;
-import java.util.Arrays;
-import tools.packet.PetPacket;
-import java.util.EnumMap;
-import tools.HexTool;
-import java.util.concurrent.RejectedExecutionException;
-import server.FishingRewardFactory.FishingReward;
-import handling.world.World.Broadcast;
-import server.life.MapleLifeFactory;
-import tools.packet.UIPacket;
-import server.Randomizer;
-import server.FishingRewardFactory;
-import server.MapleInventoryManipulator;
-import server.Timer.EtcTimer;
-import server.Timer.MapTimer;
-import server.Timer.BuffTimer;
-import server.MapleStatEffect;
-import server.MapleItemInformationProvider;
-import java.util.Collection;
-import tools.MaplePacketCreator;
-import tools.data.MaplePacketLittleEndianWriter;
-import server.life.PlayerNPC;
-import database.DatabaseException;
-import tools.FilePrinter;
-import client.inventory.IItem;
-import tools.Pair;
-import client.inventory.ItemLoader;
-import java.util.Iterator;
-import server.MaplePortal;
-import server.maps.MapleMapFactory;
-import constants.GameConstants;
-import java.util.Map.Entry;
-import handling.world.World.Party;
-import handling.world.World.Messenger;
-import handling.channel.ChannelServer;
-import handling.world.CharacterTransfer;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import tools.FileoutputUtil;
-import database.DBConPool;
-import server.maps.SavedLocationType;
-import java.util.LinkedList;
-import java.util.LinkedHashSet;
-import client.inventory.MapleInventoryType;
-import java.util.HashMap;
-import java.util.ArrayList;
-import tools.ConcurrentEnumMap;
-import java.util.LinkedHashMap;
-import server.maps.Event_PyramidSubway;
-import java.util.concurrent.ScheduledFuture;
-import client.inventory.MapleInventory;
-import scripting.EventInstanceManager;
 import handling.world.family.MapleFamilyCharacter;
+import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildCharacter;
-import handling.world.MapleParty;
-import server.shops.IMaplePlayerShop;
-import handling.world.MapleMessenger;
-import client.inventory.MapleMount;
-import server.MapleTrade;
-import server.MapleStorage;
-import server.MapleShop;
-import server.maps.MapleMap;
-import client.anticheat.CheatTracker;
-import server.MapleCarnivalParty;
-import server.MapleCarnivalChallenge;
-import java.util.Deque;
-import server.CashShop;
-import server.maps.MapleSummon;
-import server.quest.MapleQuest;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import server.maps.MapleMapObject;
+import io.netty.channel.Channel;
+import scripting.EventInstanceManager;
+import scripting.EventManager;
+import scripting.NPCConversationManager;
+import scripting.NPCScriptManager;
+import server.*;
+import server.FishingRewardFactory.FishingReward;
+import server.Timer.BuffTimer;
+import server.Timer.EtcTimer;
+import server.Timer.EventTimer;
+import server.Timer.MapTimer;
+import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
-import java.util.Set;
-import java.lang.ref.WeakReference;
-import client.inventory.MaplePet;
-import server.maps.MapleDoor;
+import server.life.MobSkill;
+import server.life.PlayerNPC;
+import server.maps.*;
 import server.movement.LifeMovementFragment;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.awt.Point;
+import server.quest.MapleQuest;
+import server.shops.IMaplePlayerShop;
+import tools.*;
+import tools.data.MaplePacketLittleEndianWriter;
+import tools.packet.*;
+
+import java.awt.*;
 import java.io.Serializable;
-import server.maps.AbstractAnimatedMapleMapObject;
+import java.lang.ref.WeakReference;
+import java.sql.*;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Serializable
 {
@@ -5802,7 +5727,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
         try {
             int count = 0;
             final Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM bosslog WHERE accountid = ? AND bossid = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM bosslog WHERE accountid = ? AND bossid = ?"); // todo
             ps.setInt(1, this.accountid);
             ps.setString(2, boss);
             final ResultSet rs = ps.executeQuery();
@@ -5820,14 +5745,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 }
                 if (sqlcal.get(5) + 1 <= Calendar.getInstance().get(5) || sqlcal.get(2) + 1 <= Calendar.getInstance().get(2) || sqlcal.get(1) + 1 <= Calendar.getInstance().get(1)) {
                     count = 0;
-                    ps = con.prepareStatement("UPDATE bosslog SET count = 0, time = CURRENT_TIMESTAMP() WHERE accountid = ? AND bossid = ?");
+                    ps = con.prepareStatement("UPDATE bosslog SET count = 0, time = CURRENT_TIMESTAMP() WHERE accountid = ? AND bossid = ?");// todo
                     ps.setInt(1, this.accountid);
                     ps.setString(2, boss);
                     ps.executeUpdate();
                 }
             }
             else {
-                final PreparedStatement psu = con.prepareStatement("INSERT INTO bosslog (accountid, characterid, bossid, count) VALUES (?, ?, ?, ?)");
+                final PreparedStatement psu = con.prepareStatement("INSERT INTO bosslog (accountid, characterid, bossid, count) VALUES (?, ?, ?, ?)");// todo
                 psu.setInt(1, this.accountid);
                 psu.setInt(2, 0);
                 psu.setString(3, boss);
@@ -5852,7 +5777,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     public void setBossLogAcc(final String bossid, int bossCount) {
         bossCount += this.getBossLogAcc(bossid);
         try {
-            final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE bosslog SET count = ?, characterid = ?, time = CURRENT_TIMESTAMP() WHERE accountid = ? AND bossid = ?");
+            final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE bosslog SET count = ?, characterid = ?, time = CURRENT_TIMESTAMP() WHERE accountid = ? AND bossid = ?");// todo
             ps.setInt(1, bossCount + 1);
             ps.setInt(2, this.id);
             ps.setInt(3, this.accountid);
@@ -8062,7 +7987,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             ++nowtime;
             try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
                 final Statement stmt = con.createStatement();
-                final ResultSet rs = stmt.executeQuery("Select TJJF from Accounts Where id = " + chr.getClient().getAccID());
+                final ResultSet rs = stmt.executeQuery("Select TJJF from accounts Where id = " + chr.getClient().getAccID());// todo
                 while (rs.next()) {
                     int debug = -1;
                     try {
@@ -8102,7 +8027,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public void setTJJF(final int x) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("Update Accounts set TJJF = ? Where id = ?");
+            final PreparedStatement ps = con.prepareStatement("Update accounts set TJJF = ? Where id = ?");// todo
             ps.setInt(1, x);
             ps.setInt(2, this.getClient().getAccID());
             ps.execute();
@@ -8813,7 +8738,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public int getQianDaoTime(final String bossid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("select count(*) from bosslog where characterid = ? and bossid = ? and lastattempt >= DATE_SUB(curdate(),INTERVAL 0 DAY)");
+            final PreparedStatement ps = con.prepareStatement("select count(*) from bosslog where characterid = ? and bossid = ? and lastattempt >= DATE_SUB(curdate(),INTERVAL 0 DAY)");// todo
             ps.setInt(1, this.id);
             ps.setString(2, bossid);
             int ret_count;
@@ -8913,7 +8838,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             ++nowtime;
             try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
                 final Statement stmt = con.createStatement();
-                final ResultSet rs = stmt.executeQuery("Select DDJF from Accounts Where id = " + chr.getClient().getAccID());
+                final ResultSet rs = stmt.executeQuery("Select DDJF from Accounts Where id = " + chr.getClient().getAccID());// todo
                 while (rs.next()) {
                     int debug = -1;
                     try {
@@ -8953,7 +8878,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public void setDDJF(final int x) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("Update Accounts set DDJF = ? Where id = ?");
+            final PreparedStatement ps = con.prepareStatement("Update Accounts set DDJF = ? Where id = ?");// todo
             ps.setInt(1, x);
             ps.setInt(2, this.getClient().getAccID());
             ps.execute();
@@ -9103,7 +9028,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public int getBossLogD(final String bossid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("select count(*) from bosslog where characterid = ? and bossid = ? and lastattempt >= DATE_SUB(curdate(),INTERVAL 0 DAY)");
+            final PreparedStatement ps = con.prepareStatement("select count(*) from bosslog where characterid = ? and bossid = ? and lastattempt >= DATE_SUB(curdate(),INTERVAL 0 DAY)");// todo
             ps.setInt(1, this.id);
             ps.setString(2, bossid);
             int ret_count;
@@ -9126,7 +9051,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public int getBossLogY(final String bossid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("select count(*) from bosslog where characterid = ? and bossid = ? and DATE_FORMAT(lastattempt, '%Y%m') = DATE_FORMAT(CURDATE( ), '%Y%m')");
+            final PreparedStatement ps = con.prepareStatement("select count(*) from bosslog where characterid = ? and bossid = ? and DATE_FORMAT(lastattempt, '%Y%m') = DATE_FORMAT(CURDATE( ), '%Y%m')");// todo
             ps.setInt(1, this.id);
             ps.setString(2, bossid);
             int ret_count;
@@ -9157,7 +9082,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public int getStChrLog() {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("select count(*) from characterid where stlog = ?");
+            final PreparedStatement ps = con.prepareStatement("select count(*) from characterid where stlog = ?");// todo
             ps.setInt(1, this.id);
             int ret_count;
             try (final ResultSet rs = ps.executeQuery()) {
@@ -9504,7 +9429,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     public int getMoneyAll() {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
             int money = 0;
-            final PreparedStatement ps = con.prepareStatement("SELECT amount FROM donate WHERE username = ?");
+            final PreparedStatement ps = con.prepareStatement("SELECT amount FROM donate WHERE username = ?");// todo
             ps.setString(1, this.getClient().getAccountName());
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -9522,7 +9447,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public void setBuLingZanZu(final int bossid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("insert into donate (username, amount, paymentMethod, date) values (?,?,?,?)");
+            final PreparedStatement ps = con.prepareStatement("insert into donate (username, amount, paymentMethod, date) values (?,?,?,?)");// todo
             ps.setString(1, this.getClient().getAccountName());
             ps.setString(2, String.valueOf(bossid));
             ps.setString(3, "補領贊助");
@@ -9564,7 +9489,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public void setFxName(final String bossid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("insert into fxlog (bossid, characterid) values (?,?)");
+            final PreparedStatement ps = con.prepareStatement("insert into fxlog (bossid, characterid) values (?,?)");// todo
             ps.setString(1, bossid);
             ps.setInt(2, this.id);
             ps.executeUpdate();
@@ -9577,7 +9502,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     
     public int getFxName(final String bossid) {
         try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection()) {
-            final PreparedStatement ps = con.prepareStatement("select count(*) from fxlog where bossid = ?");
+            final PreparedStatement ps = con.prepareStatement("select count(*) from fxlog where bossid = ?");// todo
             ps.setString(1, bossid);
             int ret_count;
             try (final ResultSet rs = ps.executeQuery()) {
@@ -9823,7 +9748,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                         }
                         if (sqlcal.get(5) + 1 <= Calendar.getInstance().get(5) || sqlcal.get(2) + 1 <= Calendar.getInstance().get(2) || sqlcal.get(1) + 1 <= Calendar.getInstance().get(1)) {
                             gamePointsRQ = 0;
-                            try (final PreparedStatement psu = con.prepareStatement("UPDATE accounts_info SET gamePointsrq = 0, updateTime = CURRENT_TIMESTAMP() WHERE accId = ? AND worldId = ?")) {
+                            try (final PreparedStatement psu = con.prepareStatement("UPDATE accounts_info SET gamePointsrq = 0, updateTime = CURRENT_TIMESTAMP() WHERE accId = ? AND worldId = ?")) {// todo
                                 psu.setInt(1, this.getClient().getAccID());
                                 psu.setInt(2, (int)this.getWorld());
                                 psu.executeUpdate();
@@ -9831,7 +9756,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                         }
                     }
                     else {
-                        try (final PreparedStatement psu2 = con.prepareStatement("INSERT INTO accounts_info (accId, worldId, gamePointsrq) VALUES (?, ?, ?)")) {
+                        try (final PreparedStatement psu2 = con.prepareStatement("INSERT INTO accounts_info (accId, worldId, gamePointsrq) VALUES (?, ?, ?)")) {// todo
                             psu2.setInt(1, this.getClient().getAccID());
                             psu2.setInt(2, (int)this.getWorld());
                             psu2.setInt(3, 0);
@@ -9860,7 +9785,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
     public void updateGamePointsRQ(final int amount) {
         try {
             final Connection con = DatabaseConnection.getConnection();
-            final PreparedStatement ps = con.prepareStatement("UPDATE accounts_info SET gamePointsrq = ?, updateTime = CURRENT_TIMESTAMP() WHERE accId = ? AND worldId = ?");
+            final PreparedStatement ps = con.prepareStatement("UPDATE accounts_info SET gamePointsrq = ?, updateTime = CURRENT_TIMESTAMP() WHERE accId = ? AND worldId = ?");// todo
             ps.setInt(1, amount);
             ps.setInt(2, this.getClient().getAccID());
             ps.setInt(3, (int)this.getWorld());
@@ -10011,7 +9936,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 ret = 0;
                 PreparedStatement ps = null;
                 try {
-                    ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO personal (channel, Name,Point) VALUES (?, ?, ?)");
+                    ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO personal (channel, Name,Point) VALUES (?, ?, ?)");// todo
                     ps.setInt(1, Channale);
                     ps.setString(2, Name);
                     ps.setInt(3, ret);
@@ -10041,7 +9966,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             }
             ret += Piot;
             final Connection con = DatabaseConnection.getConnection();
-            final PreparedStatement ps2 = con.prepareStatement("UPDATE personal SET `Point` = ? WHERE Name = ? and channel = ?");
+            final PreparedStatement ps2 = con.prepareStatement("UPDATE personal SET `Point` = ? WHERE Name = ? and channel = ?");// todo
             ps2.setInt(1, ret);
             ps2.setString(2, Name);
             ps2.setInt(3, Channale);
@@ -10057,7 +9982,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
         int ret = -1;
         try {
             final Connection con = DatabaseConnection.getConnection();
-            final PreparedStatement ps = con.prepareStatement("SELECT * FROM personal WHERE channel = ? and Name = ?");
+            final PreparedStatement ps = con.prepareStatement("SELECT * FROM personal WHERE channel = ? and Name = ?");// todo
             ps.setInt(1, Channale);
             ps.setString(2, Name);
             final ResultSet rs = ps.executeQuery();
