@@ -147,7 +147,7 @@ public class MapleServerHandler extends ChannelInboundHandlerAdapter
     
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         try {
-            final MapleClient client = (MapleClient)ctx.channel().attr((AttributeKey)MapleClient.CLIENT_KEY).get();
+            final MapleClient client = ctx.channel().attr(MapleClient.CLIENT_KEY).get();
             if (client != null) {
                 try {
                     client.disconnect(true, this.channel == -10);
@@ -158,7 +158,7 @@ public class MapleServerHandler extends ChannelInboundHandlerAdapter
                 }
                 finally {
                     ctx.channel().close();
-                    ctx.channel().attr((AttributeKey)MapleClient.CLIENT_KEY).remove();
+                    ctx.channel().attr(MapleClient.CLIENT_KEY).set(null);
                 }
             }
         }
