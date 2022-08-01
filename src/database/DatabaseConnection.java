@@ -45,12 +45,12 @@ public class DatabaseConnection
     public static Connection getConnection() {
         final Thread cThread = Thread.currentThread();
         final int threadID = (int)cThread.getId();
-        ConWrapper ret = (ConWrapper)DatabaseConnection.connections.get((Object)Integer.valueOf(threadID));
+        ConWrapper ret = DatabaseConnection.connections.get(threadID);
         if (ret == null) {
             final Connection retCon = connectToDB();
             ret = new ConWrapper(retCon);
             ret.id = threadID;
-            DatabaseConnection.connections.put(Integer.valueOf(threadID), ret);
+            DatabaseConnection.connections.put(threadID, ret);
         }
         return ret.getConnection();
     }

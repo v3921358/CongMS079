@@ -1171,12 +1171,17 @@ public class CongMS extends JFrame
                 }
             }
             ps.close();
-        }
-        catch (SQLException ex) {
+        }catch (SQLException ex) {
             System.err.println("读取动态数据库出错：" + ex.getMessage());
+        }finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
-    
+
     public void initview() {
         try {
             final LoopedStreams ls = new LoopedStreams();
