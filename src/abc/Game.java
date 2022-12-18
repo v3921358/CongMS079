@@ -27,7 +27,6 @@ public class Game
     public static String 官方群号;
     public static int 人数限制;
     public static String 官方群链接;
-    public static String IP地址;
     public static String 过期时间;
     public static String 获取网络时间;
     public static String 当前时间;
@@ -39,7 +38,6 @@ public class Game
     public static String 测速网速;
     public static String 服务端配置需要开关;
     public static int 服务端配置需要;
-    public static String 服务端IP地址;
     public static String 开服名字;
     public static String 调试;
     public static String 调试2;
@@ -506,7 +504,6 @@ public class Game
         Game.官方群号 = "12345678";
         Game.人数限制 = 999;
         Game.官方群链接 = "http://baidu.com";
-        Game.IP地址 = "127.0.0.1";//IP地方
         Game.过期时间 = "2021-01-30 00:00";
         Game.获取网络时间 = "http://baidu.com";
         Game.当前时间 = "" + 获取网络时间(Game.获取网络时间) + "";
@@ -518,7 +515,6 @@ public class Game
         Game.测速网速 = "www.baidu.com";
         Game.服务端配置需要开关 = "关";
         Game.服务端配置需要 = 16777216;
-        Game.服务端IP地址 = MapleParty.IP地址;
         Game.开服名字 = MapleParty.开服名字;
         Game.调试 = "关";
         Game.调试2 = "关";

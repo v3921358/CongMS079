@@ -1,6 +1,7 @@
 package constants;
 
 import abc.Game;
+import handling.world.MapleParty;
 import server.ServerProperties;
 import java.io.File;
 
@@ -203,7 +204,7 @@ public class ServerConfig
         ServerConfig.SERVERNAME = "冒险岛";
         ServerConfig.version = "1.7版本[ 黑金用户版 ]";
         ServerConfig.TOUDING = "Ver.079版本";
-        ServerConfig.IP = Game.IP地址;
+        ServerConfig.IP = MapleParty.IP地址;
         ServerConfig.wzpath = "WZ";
         ServerConfig.EVENTS = null;
         ServerConfig.DEBUG_MODE = false;
