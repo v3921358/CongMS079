@@ -114,7 +114,7 @@ public class DatabaseConnection {
             }
             DatabaseConnection.dbDriver = "com.mysql.jdbc.Driver";
             DatabaseConnection.dbName = DatabaseConnection.dbProps.getProperty("CongMS.db.name");
-            DatabaseConnection.dbHost = DatabaseConnection.dbProps.getProperty("CongMS.db.host");
+            DatabaseConnection.dbHost = DatabaseConnection.dbProps.getProperty("CongMS.db.ip");
             DatabaseConnection.dbPort = DatabaseConnection.dbProps.getProperty("CongMS.db.port");
             DatabaseConnection.dbUrl = "jdbc:mysql://" + DatabaseConnection.dbHost + ":" + DatabaseConnection.dbPort + "/" + DatabaseConnection.dbName + "?useUnicode=true&characterEncoding=UTF8";
             DatabaseConnection.dbUser = DatabaseConnection.dbProps.getProperty("CongMS.db.user");

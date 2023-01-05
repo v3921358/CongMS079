@@ -52,7 +52,7 @@ public class DBConPool
             System.err.println("加载数据库配置出错，请检查" + (Object)ex);
         }
         DBConPool.dbName = DBConPool.dbProps.getProperty("CongMS.db.name");
-        DBConPool.dbHost = DBConPool.dbProps.getProperty("CongMS.db.host");
+        DBConPool.dbHost = DBConPool.dbProps.getProperty("CongMS.db.ip");
         DBConPool.dbPort = DBConPool.dbProps.getProperty("CongMS.db.port");
         DBConPool.dbUser = DBConPool.dbProps.getProperty("CongMS.db.user");
         DBConPool.dbPass = DBConPool.dbProps.getProperty("CongMS.db.password");
