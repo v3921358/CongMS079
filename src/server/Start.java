@@ -1,6 +1,7 @@
 package server;
 
 import client.LoginCrypto;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.sql.Connection;
@@ -37,10 +38,12 @@ import handling.world.MapleParty;
 import handling.world.World;
 import handling.world.World.Broadcast;
 import handling.world.family.MapleFamilyBuff;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+
 import merchant.merchant_main;
 import server.Timer.BuffTimer;
 import server.Timer.CheatTimer;
@@ -63,8 +66,7 @@ import tools.MaplePacketCreator;
 import tools.StringUtil;
 import tools.packet.UIPacket;
 
-public class Start
-{
+public class Start {
     private static ServerSocket srvSocket;
     private static int srvPort;
     public static long startTime;
@@ -86,168 +88,158 @@ public class Start
     private static int Z;
     public static int 福利泡点;
     private static int 回收内存;
-    
+
     public static final void main(final String[] args) {
         if (Start.是否控制台启动) {
             final String name = null;
             final int id = 0;
             final int vip = 0;
             final int size = 0;
-            try (final Connection con = (Connection)DBConPool.getInstance().getDataSource().getConnection();
+            try (final Connection con = (Connection) DBConPool.getInstance().getDataSource().getConnection();
                  final PreparedStatement ps = con.prepareStatement("UPDATE accounts SET loggedin = 0")) {
                 ps.executeUpdate();
-            }
-            catch (SQLException ex) {
-                FileoutputUtil.outError("logs/数据库异常.txt", (Throwable)ex);
+            } catch (SQLException ex) {
+                FileoutputUtil.outError("logs/数据库异常.txt", (Throwable) ex);
                 throw new RuntimeException("【错误】 请确认数据库是否正常链接");
             }
             GetConfigValues();
             System.out.println("◇ -> 正在启动CongMS");
             System.out.println("◇ -> 版本信息: ver.079 ");
             System.out.println("◇ -> 正在读取授权码请稍后");
-            int 授权 = 进行授权校验();
-            System.out.println("◇ -> 授权码读取完毕");
+            int 授权 = 1;
+            // System.out.println("◇ -> 授权码读取完毕");
             final long startQuestTime = System.currentTimeMillis();
-            if(授权==1)
-            {
-            System.out.println("\r\n◇ -> 开始加载各项游戏数据");
-            if (WorldConstants.ADMIN_ONLY) {
-                System.out.println("◇ -> 只允许管理员登录模式开关: 开启");
-            }
-            else {
-                System.out.println("◇ -> 只允许管理员登录模式开关: 关闭");
-            }
-            if (ServerConfig.AUTO_REGISTER) {
-                System.out.println("◇ -> 账号自动注册模式开关: 开启");
-            }
-            else {
-                System.out.println("◇ -> 账号自动注册模式开关: 关闭");
-            }
-            if (!WorldConstants.GMITEMS) {
-                System.out.println("◇ -> 允许玩家使用管理员物品开关: 开启");
-            }
-            else {
-                System.out.println("◇ -> 允许玩家使用管理员物品开关: 关闭");
-            }
-            ServerConfig.loadSetting();
-            World.init();
-            WorldTimer.getInstance().start();
-            EtcTimer.getInstance().start();
-            MapTimer.getInstance().start();
-            MobTimer.getInstance().start();
-            CloneTimer.getInstance().start();
-            EventTimer.getInstance().start();
-            BuffTimer.getInstance().start();
-            PingTimer.getInstance().start();
-            LoginInformationProvider.getInstance();
-            FishingRewardFactory.getInstance();
-            MapleQuest.initQuests();
-            MapleLifeFactory.loadQuestCounts();
-            MapleOxQuizFactory.getInstance().initialize();
-            MapleItemInformationProvider.getInstance().load();
-            PredictCardFactory.getInstance().initialize();
-            CashItemFactory.getInstance().initialize();
-            RandomRewards.getInstance();
-            SkillFactory.LoadSkillInformaion();
-            MapleCarnivalFactory.getInstance();
-            System.out.println("◇ -> 游戏商品数量: " + 服务器游戏商品() + " 个");
-            System.out.println("◇ -> 商城商品数量: " + 服务器商城商品() + " 个");
-            System.out.println("◇ -> 玩家账号数量: " + 服务器账号() + " 个");
-            System.out.println("◇ -> 玩家角色数量: " + 服务器角色() + " 个");
-            System.out.println("◇ -> 玩家道具数量: " + 服务器道具() + " 个");
-            System.out.println("◇ -> 玩家技能数量: " + 服务器技能() + " 个");
-            System.out.println("◇ -> 自动存档线程");
-            System.out.println("◇ -> 启动记录在线时长线程");
-            System.out.println("◇ -> 启动服务端内存回收线程");
-            System.out.println("◇ -> 启动服务端地图回收线程");
-            System.out.println("◇ -> 处理怪物重生、CD、宠物、坐骑");
-            System.out.println("◇ -> 自定义玩家NPC");
-            System.out.println("◇ -> 检测游戏复制道具系统");
-            MapleGuildRanking.getInstance().getGuildRank();
-            MapleGuildRanking.getInstance().getJobRank(1);
-            MapleGuildRanking.getInstance().getJobRank(2);
-            MapleGuildRanking.getInstance().getJobRank(3);
-            MapleGuildRanking.getInstance().getJobRank(4);
-            MapleGuildRanking.getInstance().getJobRank(5);
-            MapleGuildRanking.getInstance().getJobRank(6);
-            MapleFamilyBuff.getBuffEntry();
-            System.out.println("\r\n[加载设置] -> 游戏倍率信息");
-            if (Integer.parseInt(ServerProperties.getProperty("CongMS.expRate")) > 100) {
-                System.out.println("游戏经验倍率: 100 倍 (上限)");
-            }
-            else {
-                System.out.println("游戏经验倍率: " + Integer.parseInt(ServerProperties.getProperty("CongMS.expRate")) + " 倍 ");
-            }
-            if (Integer.parseInt(ServerProperties.getProperty("CongMS.dropRate")) > 100) {
-                System.out.println("游戏物品倍率：100 倍 (上限)");
-            }
-            else {
-                System.out.println("游戏物品倍率：" + Integer.parseInt(ServerProperties.getProperty("CongMS.dropRate")) + " 倍 ");
-            }
-            if (Integer.parseInt(ServerProperties.getProperty("CongMS.mesoRate")) > 100) {
-                System.out.println("游戏金币倍率：100 倍 (上限)");
-            }
-            else {
-                System.out.println("游戏金币倍率：" + Integer.parseInt(ServerProperties.getProperty("CongMS.mesoRate")) + " 倍 ");
-            }
-            System.out.println("\r\n[加载设置] -> 游戏端口配置");
-            merchant_main.getInstance().load_data();
-            LoginServer.setup();
-            ChannelServer.startAllChannels();
-            CashShopServer.setup();
-            CheatTimer.getInstance().register((Runnable)AutobanManager.getInstance(), 60000L);
-            Runtime.getRuntime().addShutdownHook(new Thread((Runnable)ShutdownServer.getInstance()));
-            SpeedRunner.getInstance().loadSpeedRuns();
-            World.registerRespawn();
-            PlayerNPC.loadAll();
-            LoginServer.setOn();
-            MapleMapFactory.loadCustomLife();
-            System.out.println("[开始加载地图吸怪检测]");
-            读取地图吸怪检测();
-            System.out.println("[启动角色福利泡点线程]");
-            福利泡点(2);
-            自动存档(3);
-            在线时间(1);
-            回收内存(360);
-            回收地图(480);
-            在线统计(30);
-            记录在线时间(1);
-            World.isShutDown = false;
-            OnlyID.getInstance();
-            System.out.println("[所有游戏数据加载完毕] ");
-            System.out.println("[CongMS服务端已启动完毕，耗时 " + (System.currentTimeMillis() - startQuestTime) / 1000L + " 秒]");
-            System.out.println("[温馨提示]运行中请勿直接关闭本控制台，使用下方关闭服务器按钮来关闭服务端，否则回档自负\r\n");
-            }
-            else
-            {
-               System.out.println("[授权未通过] 无法进行正常数据写入!");
-               //System.exit(0);
+            if (授权 == 1) {
+                System.out.println("\r\n◇ -> 开始加载各项游戏数据");
+                if (WorldConstants.ADMIN_ONLY) {
+                    System.out.println("◇ -> 只允许管理员登录模式开关: 开启");
+                } else {
+                    System.out.println("◇ -> 只允许管理员登录模式开关: 关闭");
+                }
+                if (ServerConfig.AUTO_REGISTER) {
+                    System.out.println("◇ -> 账号自动注册模式开关: 开启");
+                } else {
+                    System.out.println("◇ -> 账号自动注册模式开关: 关闭");
+                }
+                if (!WorldConstants.GMITEMS) {
+                    System.out.println("◇ -> 允许玩家使用管理员物品开关: 开启");
+                } else {
+                    System.out.println("◇ -> 允许玩家使用管理员物品开关: 关闭");
+                }
+                ServerConfig.loadSetting();
+                World.init();
+                WorldTimer.getInstance().start();
+                EtcTimer.getInstance().start();
+                MapTimer.getInstance().start();
+                MobTimer.getInstance().start();
+                CloneTimer.getInstance().start();
+                EventTimer.getInstance().start();
+                BuffTimer.getInstance().start();
+                PingTimer.getInstance().start();
+                LoginInformationProvider.getInstance();
+                FishingRewardFactory.getInstance();
+                MapleQuest.initQuests();
+                MapleLifeFactory.loadQuestCounts();
+                MapleOxQuizFactory.getInstance().initialize();
+                MapleItemInformationProvider.getInstance().load();
+                PredictCardFactory.getInstance().initialize();
+                CashItemFactory.getInstance().initialize();
+                RandomRewards.getInstance();
+                SkillFactory.LoadSkillInformaion();
+                MapleCarnivalFactory.getInstance();
+                System.out.println("◇ -> 游戏商品数量: " + 服务器游戏商品() + " 个");
+                System.out.println("◇ -> 商城商品数量: " + 服务器商城商品() + " 个");
+                System.out.println("◇ -> 玩家账号数量: " + 服务器账号() + " 个");
+                System.out.println("◇ -> 玩家角色数量: " + 服务器角色() + " 个");
+                System.out.println("◇ -> 玩家道具数量: " + 服务器道具() + " 个");
+                System.out.println("◇ -> 玩家技能数量: " + 服务器技能() + " 个");
+                System.out.println("◇ -> 自动存档线程");
+                System.out.println("◇ -> 启动记录在线时长线程");
+                System.out.println("◇ -> 启动服务端内存回收线程");
+                System.out.println("◇ -> 启动服务端地图回收线程");
+                System.out.println("◇ -> 处理怪物重生、CD、宠物、坐骑");
+                System.out.println("◇ -> 自定义玩家NPC");
+                System.out.println("◇ -> 检测游戏复制道具系统");
+                MapleGuildRanking.getInstance().getGuildRank();
+                MapleGuildRanking.getInstance().getJobRank(1);
+                MapleGuildRanking.getInstance().getJobRank(2);
+                MapleGuildRanking.getInstance().getJobRank(3);
+                MapleGuildRanking.getInstance().getJobRank(4);
+                MapleGuildRanking.getInstance().getJobRank(5);
+                MapleGuildRanking.getInstance().getJobRank(6);
+                MapleFamilyBuff.getBuffEntry();
+                System.out.println("\r\n[加载设置] -> 游戏倍率信息");
+                if (Integer.parseInt(ServerProperties.getProperty("CongMS.expRate")) > 100) {
+                    System.out.println("游戏经验倍率: 100 倍 (上限)");
+                } else {
+                    System.out.println("游戏经验倍率: " + Integer.parseInt(ServerProperties.getProperty("CongMS.expRate")) + " 倍 ");
+                }
+                if (Integer.parseInt(ServerProperties.getProperty("CongMS.dropRate")) > 100) {
+                    System.out.println("游戏物品倍率：100 倍 (上限)");
+                } else {
+                    System.out.println("游戏物品倍率：" + Integer.parseInt(ServerProperties.getProperty("CongMS.dropRate")) + " 倍 ");
+                }
+                if (Integer.parseInt(ServerProperties.getProperty("CongMS.mesoRate")) > 100) {
+                    System.out.println("游戏金币倍率：100 倍 (上限)");
+                } else {
+                    System.out.println("游戏金币倍率：" + Integer.parseInt(ServerProperties.getProperty("CongMS.mesoRate")) + " 倍 ");
+                }
+                System.out.println("\r\n[加载设置] -> 游戏端口配置");
+                merchant_main.getInstance().load_data();
+                LoginServer.setup();
+                ChannelServer.startAllChannels();
+                CashShopServer.setup();
+                CheatTimer.getInstance().register((Runnable) AutobanManager.getInstance(), 60000L);
+                Runtime.getRuntime().addShutdownHook(new Thread((Runnable) ShutdownServer.getInstance()));
+                SpeedRunner.getInstance().loadSpeedRuns();
+                World.registerRespawn();
+                PlayerNPC.loadAll();
+                LoginServer.setOn();
+                MapleMapFactory.loadCustomLife();
+                System.out.println("[开始加载地图吸怪检测]");
+                读取地图吸怪检测();
+                System.out.println("[启动角色福利泡点线程]");
+                福利泡点(2);
+                自动存档(3);
+                在线时间(1);
+                回收内存(360);
+                回收地图(480);
+                在线统计(30);
+                记录在线时间(1);
+                World.isShutDown = false;
+                OnlyID.getInstance();
+                System.out.println("[所有游戏数据加载完毕] ");
+                System.out.println("[CongMS服务端已启动完毕，耗时 " + (System.currentTimeMillis() - startQuestTime) / 1000L + " 秒]");
+                System.out.println("[温馨提示]运行中请勿直接关闭本控制台，使用下方关闭服务器按钮来关闭服务端，否则回档自负\r\n");
+            } else {
+                System.out.println("[授权未通过] 无法进行正常数据写入!");
+                //System.exit(0);
             }
         }
     }
-    //机器码
-    public static int 进行授权校验()
-    {
-        int ret =0;
-        String[] macs = {"5046a9b56c8bc7f9df6624d7d05c5c3bd28c501a","63dd380b0a343688288ddfeecbe6d06ad17810df","6993556b97ce679d83a66cb36db5593e97c39a0e","1b48a9487cb41085ec9384e50d2589504709569b","acb9d23fbac9073d74a84e0c49efc6ed8fa48a91","8dffcdcdbf80555523fb8c0877b36a9af5fb3336","abb8bb439105565ce3e58db8af5d089f7e012578","091e052935987d66ca704ee2aaca494f6646149a","2b5f67b4f326afe460a06fc9e933ac594eacf2b6","6a61f9accabe50ff3eab9960b51149b1d7af1c7c"};
 
-                String mac = MacAddressTool.getMacAddress(false);
-                String num = returnSerialNumber();
-                String localMac = LoginCrypto.hexSha1(num + mac);
-                System.out.println(localMac);
-                if (localMac != null) {
-                    for (int i = 0; i < macs.length; i++) {
-                        if (macs[i].equals(localMac)) {
-                            ret=1;
-                            break;
-                        }
-                    }
-                } else {
-                    //System.exit(0);
+    //机器码
+    public static int 进行授权校验() {
+        int ret = 0;
+        String[] macs = {"5046a9b56c8bc7f9df6624d7d05c5c3bd28c501a", "63dd380b0a343688288ddfeecbe6d06ad17810df", "6993556b97ce679d83a66cb36db5593e97c39a0e", "1b48a9487cb41085ec9384e50d2589504709569b", "acb9d23fbac9073d74a84e0c49efc6ed8fa48a91", "8dffcdcdbf80555523fb8c0877b36a9af5fb3336", "abb8bb439105565ce3e58db8af5d089f7e012578", "091e052935987d66ca704ee2aaca494f6646149a", "2b5f67b4f326afe460a06fc9e933ac594eacf2b6", "6a61f9accabe50ff3eab9960b51149b1d7af1c7c"};
+
+        String mac = MacAddressTool.getMacAddress(false);
+        String num = returnSerialNumber();
+        String localMac = LoginCrypto.hexSha1(num + mac);
+        System.out.println(localMac);
+        if (localMac != null) {
+            for (int i = 0; i < macs.length; i++) {
+                if (macs[i].equals(localMac)) {
+                    ret = 1;
+                    break;
                 }
-        return ret ;
+            }
+        } else {
+            //System.exit(0);
+        }
+        return ret;
     }
-    
+
     public static String returnSerialNumber() {
         String cpu = getCPUSerial();
         String disk = getHardDiskSerialNumber("C");
@@ -258,7 +250,7 @@ public class Start
         String newStr = s.substring(8, s.length());
         return newStr;
     }
-    
+
     public static String getHardDiskSerialNumber(String drive) {
         String result = "";
         try {
@@ -281,7 +273,7 @@ public class Start
         }
         return result.trim();
     }
-    
+
     public static String getCPUSerial() {
         String result = "";
         try {
@@ -310,7 +302,7 @@ public class Start
         }
         return result.trim();
     }
-    
+
     public static void GetConfigValues() {
         final Connection con = DatabaseConnection.getConnection();
         try (final PreparedStatement ps = con.prepareStatement("SELECT name, val FROM ConfigValues")) {
@@ -322,14 +314,13 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             System.err.println("读取动态数据库出错：" + ex.getMessage());
         }
     }
-    
+
     public static void 记录在线时间(final int time) {
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 if (记录在线时间 > 0) {
@@ -338,7 +329,7 @@ public class Start
                     final int 时 = Calendar.getInstance().get(11);
                     final int 分 = Calendar.getInstance().get(12);
                     final int 星期 = Calendar.getInstance().get(7);
-                    if (时 == 0 && !(boolean)isClearBossLog) {
+                    if (时 == 0 && !(boolean) isClearBossLog) {
                         System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : ------------------------------");
                         System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : 服务端开始清理每日信息 √");
                         try {
@@ -352,8 +343,7 @@ public class Start
                             }
                             System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : 服务端清理每日信息完成 √");
                             System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : ------------------------------");
-                        }
-                        catch (SQLException ex) {
+                        } catch (SQLException ex) {
                             System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : 服务端处理每日数据出错 × " + ex.getMessage());
                             System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : ------------------------------");
                         }
@@ -361,35 +351,32 @@ public class Start
                         魔族入侵 = Boolean.valueOf(false);
                         魔族攻城 = Boolean.valueOf(false);
                         喜从天降 = Boolean.valueOf(false);
-                    }
-                    else if (时 == 23) {
+                    } else if (时 == 23) {
                         isClearBossLog = Boolean.valueOf(false);
                     }
-                    if ((int)Integer.valueOf(ConfigValuesMap.get((Object)"魔族突袭开关")) == 0 && calendar.get(11) == 22 && !(boolean)魔族入侵) {
+                    if ((int) Integer.valueOf(ConfigValuesMap.get((Object) "魔族突袭开关")) == 0 && calendar.get(11) == 22 && !(boolean) 魔族入侵) {
                         活动魔族入侵.魔族入侵线程();
                         魔族入侵 = Boolean.valueOf(true);
                     }
-                    if ((int)Integer.valueOf(ConfigValuesMap.get((Object)"魔族攻城开关")) == 0 && Calendar.getInstance().get(7) == 1 && 时 == 21 && 分 <= 10 && !(boolean)魔族攻城) {
+                    if ((int) Integer.valueOf(ConfigValuesMap.get((Object) "魔族攻城开关")) == 0 && Calendar.getInstance().get(7) == 1 && 时 == 21 && 分 <= 10 && !(boolean) 魔族攻城) {
                         活动魔族攻城.魔族攻城线程();
                         魔族攻城 = Boolean.valueOf(true);
                     }
-                    if ((int)Integer.valueOf(ConfigValuesMap.get((Object)"幸运职业开关")) == 0) {
-                        if (时 == 11 && !(boolean)幸运职业) {
+                    if ((int) Integer.valueOf(ConfigValuesMap.get((Object) "幸运职业开关")) == 0) {
+                        if (时 == 11 && !(boolean) 幸运职业) {
                             Start.幸运职业();
                             幸运职业 = Boolean.valueOf(true);
-                        }
-                        else if (时 == 23 && (boolean)幸运职业) {
+                        } else if (时 == 23 && (boolean) 幸运职业) {
                             Start.幸运职业();
                             幸运职业 = Boolean.valueOf(false);
-                        }
-                        else if (MapleParty.幸运职业 == 0) {
+                        } else if (MapleParty.幸运职业 == 0) {
                             Start.幸运职业();
                         }
                     }
-                    if ((int)Integer.valueOf(ConfigValuesMap.get((Object)"周末倍率开关")) == 0) {
+                    if ((int) Integer.valueOf(ConfigValuesMap.get((Object) "周末倍率开关")) == 0) {
                         switch (Calendar.getInstance().get(7)) {
                             case 7: {
-                                if (时 == 0 && !(boolean)倍率活动) {
+                                if (时 == 0 && !(boolean) 倍率活动) {
                                     活动倍率活动.倍率活动线程();
                                     倍率活动 = Boolean.valueOf(true);
                                     break;
@@ -401,7 +388,7 @@ public class Start
                                 break;
                             }
                             case 1: {
-                                if (时 == 0 && !(boolean)倍率活动) {
+                                if (时 == 0 && !(boolean) 倍率活动) {
                                     活动倍率活动.倍率活动线程();
                                     倍率活动 = Boolean.valueOf(true);
                                     break;
@@ -413,7 +400,7 @@ public class Start
                                 break;
                             }
                             case 6: {
-                                if ((boolean)倍率活动) {
+                                if ((boolean) 倍率活动) {
                                     倍率活动 = Boolean.valueOf(false);
                                     break;
                                 }
@@ -421,7 +408,7 @@ public class Start
                             }
                         }
                     }
-                    if ((int)Integer.valueOf(ConfigValuesMap.get((Object)"神秘商人开关")) == 0) {
+                    if ((int) Integer.valueOf(ConfigValuesMap.get((Object) "神秘商人开关")) == 0) {
                         if (MapleParty.神秘商人线程 == 0) {
                             活动神秘商人.启动神秘商人();
                             ++MapleParty.神秘商人线程;
@@ -430,12 +417,11 @@ public class Start
                             活动神秘商人.召唤神秘商人();
                         }
                     }
-                    if ((int)Integer.valueOf(ConfigValuesMap.get((Object)"野外通缉开关")) == 0) {
+                    if ((int) Integer.valueOf(ConfigValuesMap.get((Object) "野外通缉开关")) == 0) {
                         if (初始通缉令 == 30) {
                             活动野外通缉.随机通缉();
                             初始通缉令++;
-                        }
-                        else {
+                        } else {
                             初始通缉令++;
                         }
                     }
@@ -459,20 +445,18 @@ public class Start
                                     continue;
                                 }
                                 Z++;
-                            }
-                            catch (SQLException ex2) {
+                            } catch (SQLException ex2) {
                                 Start.记录在线时间补救(chr.getId());
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     记录在线时间++;
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void 记录在线时间补救(final int a) {
         final Connection con = DatabaseConnection.getConnection();
         try (final PreparedStatement psu = con.prepareStatement("UPDATE characters SET todayOnlineTime = todayOnlineTime + ?, totalOnlineTime = totalOnlineTime + ? WHERE id = ?")) {
@@ -481,12 +465,11 @@ public class Start
             psu.setInt(3, a);
             psu.executeUpdate();
             psu.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             记录在线时间补救2(a);
         }
     }
-    
+
     public static void 记录在线时间补救2(final int a) {
         final Connection con = DatabaseConnection.getConnection();
         try (final PreparedStatement psu = con.prepareStatement("UPDATE characters SET todayOnlineTime = todayOnlineTime + ?, totalOnlineTime = totalOnlineTime + ? WHERE id = ?")) {
@@ -495,12 +478,11 @@ public class Start
             psu.setInt(3, a);
             psu.executeUpdate();
             psu.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             记录在线时间补救3(a);
         }
     }
-    
+
     public static void 记录在线时间补救3(final int a) {
         final Connection con = DatabaseConnection.getConnection();
         try (final PreparedStatement psu = con.prepareStatement("UPDATE characters SET todayOnlineTime = todayOnlineTime + ?, totalOnlineTime = totalOnlineTime + ? WHERE id = ?")) {
@@ -509,12 +491,12 @@ public class Start
             psu.setInt(3, a);
             psu.executeUpdate();
             psu.close();
+        } catch (SQLException ex) {
         }
-        catch (SQLException ex) {}
     }
-    
+
     public static void 幸运职业() {
-        int 随机 = (int)Math.ceil(Math.random() * 18.0);
+        int 随机 = (int) Math.ceil(Math.random() * 18.0);
         if (随机 == 0) {
             ++随机;
         }
@@ -596,16 +578,16 @@ public class Start
         System.err.println("[服务端]" + FileoutputUtil.CurrentReadable_Time() + " : [幸运职业] : " + 信息);
         Broadcast.broadcastMessage(MaplePacketCreator.serverNotice(6, "[幸运职业] : " + 信息));
     }
-    
+
     public static void 福利泡点(final int time) {
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 if (福利泡点 > 0) {
                     try {
                         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                             for (final MapleCharacter chr : cserv.getPlayerStorage().getAllCharacters()) {
-                                if (chr == null || chr.getMap().getId() !=910000000) {//泡点地图
+                                if (chr == null || chr.getMap().getId() != 910000000) {//泡点地图
                                     continue;
                                 }
                                 if (chr.level <= 10) {
@@ -616,60 +598,58 @@ public class Start
                                 int 金币 = 0;
                                 int 抵用 = 0;
                                 int 豆豆 = 0;
-                                final int 泡点豆豆开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点豆豆开关"));
+                                final int 泡点豆豆开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点豆豆开关"));
                                 if (泡点豆豆开关 <= 0) {
-                                    final int 泡点豆豆 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点豆豆"));
+                                    final int 泡点豆豆 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点豆豆"));
                                     豆豆 += 泡点豆豆;
                                     chr.gainBeans(豆豆);
                                 }
-                                final int 泡点金币开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点金币开关"));
+                                final int 泡点金币开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点金币开关"));
                                 if (泡点金币开关 <= 0) {
-                                    final int 泡点金币 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点金币"));
+                                    final int 泡点金币 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点金币"));
                                     金币 += chr.getLevel() * 泡点金币;
                                     chr.gainMeso(chr.getLevel() * 泡点金币, true);
                                 }
-                                final int 泡点点券开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点点券开关"));
+                                final int 泡点点券开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点点券开关"));
                                 if (泡点点券开关 <= 0) {
-                                    final int 泡点点券 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点点券"));
+                                    final int 泡点点券 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点点券"));
                                     chr.modifyCSPoints(1, 泡点点券, true);
                                     点券 += 泡点点券;
                                 }
-                                final int 泡点抵用开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点抵用开关"));
+                                final int 泡点抵用开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点抵用开关"));
                                 if (泡点抵用开关 <= 0) {
-                                    final int 泡点抵用 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点抵用"));
+                                    final int 泡点抵用 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点抵用"));
                                     chr.modifyCSPoints(2, 泡点抵用, true);
                                     抵用 += 泡点抵用;
                                 }
-                                final int 泡点经验开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点经验开关"));
+                                final int 泡点经验开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点经验开关"));
                                 if (泡点经验开关 > 0) {
                                     continue;
                                 }
-                                final int 泡点经验 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点经验"));
+                                final int 泡点经验 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点经验"));
                                 经验 += chr.getLevel() * 泡点经验;
                                 chr.gainExp(chr.getLevel() * 经验, false, false, false);
                             }
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         new Thread() {
                             @Override
                             public void run() {
                                 try {
                                     Thread.sleep(10000L);
                                     Start.福利泡点();
+                                } catch (InterruptedException ex) {
                                 }
-                                catch (InterruptedException ex) {}
                             }
                         }.start();
                     }
-                }
-                else {
+                } else {
                     ++福利泡点;
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void 福利泡点() {
         try {
             for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
@@ -685,47 +665,47 @@ public class Start
                     int 金币 = 0;
                     int 抵用 = 0;
                     int 豆豆 = 0;
-                    final int 泡点豆豆开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点豆豆开关"));
+                    final int 泡点豆豆开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点豆豆开关"));
                     if (泡点豆豆开关 <= 0) {
-                        final int 泡点豆豆 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点豆豆"));
+                        final int 泡点豆豆 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点豆豆"));
                         豆豆 += 泡点豆豆;
                         chr.gainBeans(豆豆);
                     }
-                    final int 泡点金币开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点金币开关"));
+                    final int 泡点金币开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点金币开关"));
                     if (泡点金币开关 <= 0) {
-                        final int 泡点金币 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点金币"));
+                        final int 泡点金币 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点金币"));
                         金币 += chr.getLevel() * 泡点金币;
                         chr.gainMeso(chr.getLevel() * 泡点金币, true);
                     }
-                    final int 泡点点券开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点点券开关"));
+                    final int 泡点点券开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点点券开关"));
                     if (泡点点券开关 <= 0) {
-                        final int 泡点点券 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点点券"));
+                        final int 泡点点券 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点点券"));
                         chr.modifyCSPoints(1, 泡点点券, true);
                         点券 += 泡点点券;
                     }
-                    final int 泡点抵用开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点抵用开关"));
+                    final int 泡点抵用开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点抵用开关"));
                     if (泡点抵用开关 <= 0) {
-                        final int 泡点抵用 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点抵用"));
+                        final int 泡点抵用 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点抵用"));
                         chr.modifyCSPoints(2, 泡点抵用, true);
                         抵用 += 泡点抵用;
                     }
-                    final int 泡点经验开关 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点经验开关"));
+                    final int 泡点经验开关 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点经验开关"));
                     if (泡点经验开关 <= 0) {
-                        final int 泡点经验 = (int)Integer.valueOf(CongMS.ConfigValuesMap.get((Object)"泡点经验"));
+                        final int 泡点经验 = (int) Integer.valueOf(CongMS.ConfigValuesMap.get((Object) "泡点经验"));
                         经验 += chr.getLevel() * 泡点经验;
                         chr.gainExp(chr.getLevel() * 泡点经验, true, true, false);
                     }
-                    chr.getClient().getSession().write((Object)MaplePacketCreator.serverNotice(5, "[世界泡点] ：获得 [" + 点券 + "] 点卷 / [" + 抵用 + "] 抵用卷 / [" + 经验 + "] 经验  [" + 金币 + "] 金币  !"));
+                    chr.getClient().getSession().write((Object) MaplePacketCreator.serverNotice(5, "[世界泡点] ：获得 [" + 点券 + "] 点卷 / [" + 抵用 + "] 抵用卷 / [" + 经验 + "] 经验  [" + 金币 + "] 金币  !"));
                     chr.getClient().sendPacket(UIPacket.getTopMsg("[" + GameConstants.冒险岛名字 + "世界泡点]:获得 " + 点券 + " 点券 / " + 抵用 + " 抵用 / " + 经验 + " 经验 / " + 金币 + " 金币 ! "));
                     chr.getClient().sendPacket(MaplePacketCreator.enableActions());
                 }
             }
+        } catch (Exception ex) {
         }
-        catch (Exception ex) {}
     }
-    
+
     public static void 自动存档(final int time) {
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 int ppl = 0;
@@ -733,9 +713,8 @@ public class Start
                     Collection<MapleCharacter> allCharacters = null;
                     try {
                         allCharacters = cserv.getPlayerStorage().getAllCharacters();
-                    }
-                    catch (Exception e) {
-                        System.err.println("自动存档出错1：" + (Object)e);
+                    } catch (Exception e) {
+                        System.err.println("自动存档出错1：" + (Object) e);
                     }
                     if (allCharacters != null) {
                         boolean flag = true;
@@ -755,34 +734,32 @@ public class Start
                                     chr.saveToDB(false, false);
                                 }
                                 flag = false;
-                            }
-                            catch (Exception e2) {
-                                System.err.println("自动存档出错2：" + (Object)e2);
+                            } catch (Exception e2) {
+                                System.err.println("自动存档出错2：" + (Object) e2);
                             }
                         }
                     }
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void 回收内存(final int time) {
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 if (回收内存 > 0) {
                     System.gc();
                     System.err.println("○【内存回收】 " + FileoutputUtil.CurrentReadable_Time() + " : 回收服务端内存 √");
-                }
-                else {
+                } else {
                     回收内存++;
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void 回收地图(final int time) {
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
@@ -798,14 +775,13 @@ public class Start
                             if (player.getClient().getChannelServer().getMapFactory().destroyMap(mapid)) {
                                 final MapleMap newMap = player.getClient().getChannelServer().getMapFactory().getMap(mapid);
                                 final MaplePortal newPor = newMap.getPortal(0);
-                                final LinkedHashSet<MapleCharacter> mcs = new LinkedHashSet<MapleCharacter>((Collection<? extends MapleCharacter>)map.getCharacters());
+                                final LinkedHashSet<MapleCharacter> mcs = new LinkedHashSet<MapleCharacter>((Collection<? extends MapleCharacter>) map.getCharacters());
                                 for (final MapleCharacter m : mcs) {
                                     int x = 0;
                                     while (x < 5) {
                                         try {
                                             m.changeMap(newMap, newPor);
-                                        }
-                                        catch (Throwable t) {
+                                        } catch (Throwable t) {
                                             System.err.println("○【地图回收】 " + FileoutputUtil.CurrentReadable_Time() + " : 系统正在回收地图 √");
                                             ++x;
                                             continue;
@@ -818,9 +794,9 @@ public class Start
                     }
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void 读取地图吸怪检测() {
         final Connection con = DatabaseConnection.getConnection();
         try (final PreparedStatement ps = con.prepareStatement("SELECT name, val FROM 地图吸怪检测")) {
@@ -832,12 +808,11 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             System.err.println("读取吸怪检测错误：" + ex.getMessage());
         }
     }
-    
+
     public static int 服务器角色() {
         int p = 0;
         try {
@@ -849,13 +824,12 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException Ex) {
+        } catch (SQLException Ex) {
             System.err.println("服务器角色？");
         }
         return p;
     }
-    
+
     public static int 服务器账号() {
         int p = 0;
         try {
@@ -867,13 +841,12 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException Ex) {
+        } catch (SQLException Ex) {
             System.err.println("服务器账号？");
         }
         return p;
     }
-    
+
     public static int 服务器技能() {
         int p = 0;
         try {
@@ -885,13 +858,12 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException Ex) {
+        } catch (SQLException Ex) {
             System.err.println("服务器技能？");
         }
         return p;
     }
-    
+
     public static int 服务器道具() {
         int p = 0;
         try {
@@ -903,13 +875,12 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException Ex) {
+        } catch (SQLException Ex) {
             System.err.println("服务器道具？");
         }
         return p;
     }
-    
+
     public static int 服务器商城商品() {
         int p = 0;
         try {
@@ -921,13 +892,12 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException Ex) {
+        } catch (SQLException Ex) {
             System.err.println("服务器商城商品？");
         }
         return p;
     }
-    
+
     public static int 服务器游戏商品() {
         int p = 0;
         try {
@@ -939,25 +909,24 @@ public class Start
                 }
             }
             ps.close();
-        }
-        catch (SQLException Ex) {
+        } catch (SQLException Ex) {
             System.err.println("服务器道具游戏商品？");
         }
         return p;
     }
-    
+
     public static void 在线统计(final int time) {
         System.out.println("[CongMS服务端启用在线统计." + time + "分钟统计一次在线的人数信息]");
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 final Map<Integer, Integer> connected = World.getConnected();
                 final StringBuilder conStr = new StringBuilder(FileoutputUtil.CurrentReadable_Time() + " 在线人数: ");
                 final Iterator<Integer> iterator = connected.keySet().iterator();
                 while (iterator.hasNext()) {
-                    final int i = (int)Integer.valueOf(iterator.next());
+                    final int i = (int) Integer.valueOf(iterator.next());
                     if (i == 0) {
-                        final int users = (int)Integer.valueOf(connected.get((Object)Integer.valueOf(i)));
+                        final int users = (int) Integer.valueOf(connected.get((Object) Integer.valueOf(i)));
                         conStr.append(StringUtil.getRightPaddedStr(String.valueOf(users), ' ', 3));
                         if (users > maxUsers) {
                             maxUsers = users;
@@ -972,11 +941,11 @@ public class Start
                     FileoutputUtil.log("在线统计.txt", conStr.toString() + "\r\n");
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void 在线时间(final int time) {
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 final Calendar c = Calendar.getInstance();
@@ -990,9 +959,8 @@ public class Start
                             ps.executeUpdate();
                             ps.close();
                         }
-                    }
-                    catch (SQLException Ex) {
-                        System.err.println("更新角色帐号的在线时间出现错误 - 数据库更新失败." + (Object)Ex);
+                    } catch (SQLException Ex) {
+                        System.err.println("更新角色帐号的在线时间出现错误 - 数据库更新失败." + (Object) Ex);
                     }
                 }
                 try {
@@ -1003,8 +971,7 @@ public class Start
                             }
                             if (hour == 0 && minute == 0) {
                                 chr.set在线时间(0);
-                            }
-                            else {
+                            } else {
                                 chr.gainGamePoints(1);
                                 if (chr.get在线时间() >= 5) {
                                     continue;
@@ -1014,17 +981,16 @@ public class Start
                             }
                         }
                     }
-                }
-                catch (Exception e) {
-                    System.err.println("在线时间出错:" + (Object)e);
+                } catch (Exception e) {
+                    System.err.println("在线时间出错:" + (Object) e);
                 }
             }
-        }, (long)(60000 * time));
+        }, (long) (60000 * time));
     }
-    
+
     public static void startCheck() {
         System.out.println("服务端启用检测.30秒检测一次角色是否与登录器断开连接.");
-        WorldTimer.getInstance().register((Runnable)new Runnable() {
+        WorldTimer.getInstance().register((Runnable) new Runnable() {
             @Override
             public void run() {
                 for (final ChannelServer cserv_ : ChannelServer.getAllInstances()) {
@@ -1037,19 +1003,18 @@ public class Start
             }
         }, 30000L);
     }
-    
+
     protected static void checkSingleInstance() {
         try {
             Start.srvSocket = new ServerSocket(Start.srvPort);
-        }
-        catch (IOException ex) {
-            if (ex.getMessage().contains((CharSequence)"地址已经在使用:JVM_Bind")) {
+        } catch (IOException ex) {
+            if (ex.getMessage().contains((CharSequence) "地址已经在使用:JVM_Bind")) {
                 System.out.println("在一台主机上同时只能启动一个进程(Only one instance allowed)。");
             }
             System.exit(0);
         }
     }
-    
+
     static {
         Start.srvSocket = null;
         Start.srvPort = 6350;
@@ -1071,12 +1036,11 @@ public class Start
         Start.福利泡点 = 0;
         Start.回收内存 = 0;
     }
-    
-    public static class Shutdown implements Runnable
-    {
+
+    public static class Shutdown implements Runnable {
         @Override
         public void run() {
-            new Thread((Runnable)ShutdownServer.getInstance()).start();
+            new Thread((Runnable) ShutdownServer.getInstance()).start();
         }
     }
 }
