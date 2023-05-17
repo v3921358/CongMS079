@@ -1113,6 +1113,7 @@ public class CongMS extends JFrame {
                 e.printStackTrace();
             }
         }
+        System.out.println("共載入了" + CongMS.ConfigValuesMap.size() + "個配置");
     }
 
     public void initview() {
